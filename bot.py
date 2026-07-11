@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, ContextTypes, filters, CommandHandler
 
 TOKEN =8790089235:AAGtgJFfn3k8sffWfkFQSza0C0vV3aMzhWc
-ADMIN_ID = 0
+ADMIN_ID = 1328541895
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
