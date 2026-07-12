@@ -105,6 +105,75 @@ async def reply_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         user_id = int(context.args[0])
+
+        context.user_data["reply_to"] = user_id
+
+        await update.message.reply_text(
+            "✅ الآن أرسل الرسالة أو الصورة أو الملف أو الفيديو"
+        )
+
+    except:
+        await update.message.reply_text(
+            "استخدم:\n/reply ID"
+        )
+
+
+async def admin_reply_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    user_id = context.user_data.get("reply_to")
+
+    if not user_id:
+        return
+
+    try:
+
+        if update.message.text:
+            await context.bot.send_message(
+                user_id,
+                update.message.text
+            )
+
+        elif update.message.photo:
+            await context.bot.send_photo(
+                user_id,
+                update.message.photo[-1].file_id
+            )
+
+        elif update.message.document:
+            await context.bot.send_document(
+                user_id,
+                update.message.document.file_id
+            )
+
+        elif update.message.video:
+            await context.bot.send_video(
+                user_id,
+                update.message.video.file_id
+            )
+
+        elif update.message.audio:
+            await context.bot.send_audio(
+                user_id,
+                update.message.audio.file_id
+            )
+
+        await update.message.reply_text("✅ تم الإرسال")
+
+        context.user_data.pop("reply_to")
+
+    except Exception as e:
+        await update.message.reply_text(
+            f"حدث خطأ: {e}"
+        )
+
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    try:
+        user_id = int(context.args[0])
         text = " ".join(context.args[1:])
 
         await context.bot.send_message(
