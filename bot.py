@@ -169,26 +169,6 @@ async def admin_reply_content(update: Update, context: ContextTypes.DEFAULT_TYPE
             f"حدث خطأ: {e}"
         )
 
-    if update.effective_user.id != ADMIN_ID:
-        return
-
-    try:
-        user_id = int(context.args[0])
-        text = " ".join(context.args[1:])
-
-        await context.bot.send_message(
-            chat_id=user_id,
-            text=text
-        )
-
-        await update.message.reply_text(
-            "✅ تم إرسال الرد"
-        )
-
-    except:
-        await update.message.reply_text(
-            "استخدم:\n/reply ID الرسالة"
-        )
 app = Application.builder().token(TOKEN).build()
 
 
