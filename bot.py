@@ -8,7 +8,7 @@ from telegram.ext import (
 )
 
 
-TOKEN = "8790089235:AAGtgJFfn3k8sffWfkFQSza0C0vV3aMzhWc"
+TOKEN = ""
 ADMIN_ID = 1328541895
 
 
@@ -125,7 +125,6 @@ async def admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = context.user_data.get("reply_to")
 
-
     if not user_id:
         return
 
@@ -193,26 +192,23 @@ app.add_handler(
 )
 
 
-# رد الإدارة (نخليه قبل استقبال الطلاب)
+# رسائل الإدارة فقط
 app.add_handler(
     MessageHandler(
-        filters.ALL & ~filters.COMMAND,
+        filters.ALL
+        & ~filters.COMMAND
+        & filters.User(ADMIN_ID),
         admin_reply
     )
 )
 
 
-# استقبال الطلاب
+# رسائل الطلاب فقط
 app.add_handler(
     MessageHandler(
-        (
-            filters.TEXT |
-            filters.PHOTO |
-            filters.Document.ALL |
-            filters.VIDEO |
-            filters.AUDIO
-        )
-        & ~filters.COMMAND,
+        filters.ALL
+        & ~filters.COMMAND
+        & ~filters.User(ADMIN_ID),
         receive_student
     )
 )
