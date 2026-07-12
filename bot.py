@@ -120,3 +120,59 @@ async def reply_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "استخدم:\n/reply ID الرسالة"
         )
+app = Application.builder().token(TOKEN).build()
+
+
+# الأوامر
+app.add_handler(
+    CommandHandler("start", start)
+)
+
+app.add_handler(
+    CommandHandler("reply", reply_user)
+)
+
+
+# النصوص + الصور + الملفات
+app.add_handler(
+    MessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        send_to_admin
+    )
+)
+
+app.add_handler(
+    MessageHandler(
+        filters.PHOTO,
+        send_to_admin
+    )
+)
+
+app.add_handler(
+    MessageHandler(
+        filters.Document.ALL,
+        send_to_admin
+    )
+)
+
+
+# الفيديو
+app.add_handler(
+    MessageHandler(
+        filters.VIDEO,
+        handle_video
+    )
+)
+
+
+# الصوت
+app.add_handler(
+    MessageHandler(
+        filters.AUDIO,
+        handle_audio
+    )
+)
+
+
+# تشغيل البوت
+app.run_polling()
