@@ -1,53 +1,65 @@
 from telegram import Update
-from telegram.ext import Application, MessageHandler, ContextTypes, filters, CommandHandler
+from telegram.ext import (
+    Application,
+    MessageHandler,
+    ContextTypes,
+    filters,
+    CommandHandler
+)
 
 TOKEN = "8790089235:AAGtgJFfn3k8sffWfkFQSza0C0vV3aMzhWc"
 ADMIN_ID = 1328541895
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Welcome 🌷\nSend your message and you will get a reply."
+        "أهلاً بك 🌷\n"
+        "أرسل رسالتك أو صورة أو ملف، وسيتم الرد عليك."
     )
 
-async def receive_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+async def send_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     user = update.effective_user
-    message = update.message.text
 
-    await context.bot.send_message(
-        chat_id=ADMIN_ID,
-        text=f"New message\n\n"
-             f"Name: {user.full_name}\n"
-             f"ID: {user.id}\n\n"
-             f"Message:\n{message}\n\n"
-             f"Reply using:\n/reply {user.id} your message"
+    info = (
+        f"📩 رسالة جديدة\n\n"
+        f"👤 الاسم: {user.full_name}\n"
+        f"🆔 ID: {user.id}\n"
     )
 
-    await update.message.reply_text("Your message has been received ✅")
+    if user.username:
+        info += f"🔹 Username: @{user.username}\n"
 
-async def reply_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
-        return
 
-    try:
-        user_id = int(context.args[0])
-        text = " ".join(context.args[1:])
+    # رسالة نصية
+    if update.message.text:
 
         await context.bot.send_message(
-            chat_id=user_id,
-            text=text
+            chat_id=ADMIN_ID,
+            text=info + 
+            f"\n💬 الرسالة:\n{update.message.text}\n\n"
+            f"للرد:\n/reply {user.id} الرسالة"
         )
 
-        await update.message.reply_text("Message sent ✅")
 
-    except:
-        await update.message.reply_text(
-            "Use:\n/reply ID message"
+    # صورة
+    elif update.message.photo:
+
+        await context.bot.send_photo(
+            chat_id=ADMIN_ID,
+            photo=update.message.photo[-1].file_id,
+            caption=info +
+            f"\n📷 صورة\n\nللرد:\n/reply {user.id} الرسالة"
         )
 
-app = Application.builder().token(TOKEN).build()
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("reply", reply_user))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, receive_message))
+    # ملف PDF / Word / أي ملف
+    elif update.message.document:
 
-app.run_polling()
+        await context.bot.send_document(
+            chat_id=ADMIN_ID,
+            document=update.message.document.file_id,
+            caption=info +
+            f"\n📄 ملف\n\nللرد:\n/reply {user.id} الرسالة"
+        )
