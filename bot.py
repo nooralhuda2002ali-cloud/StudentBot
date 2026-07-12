@@ -8,7 +8,7 @@ from telegram.ext import (
 )
 
 
-TOKEN = "ضعي_التوكن_هنا"
+TOKEN = "8790089235:AAGtgJFfn3k8sffWfkFQSza0C0vV3aMzhWc"
 ADMIN_ID = 1328541895
 
 
