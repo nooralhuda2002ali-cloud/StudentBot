@@ -7,18 +7,22 @@ from telegram.ext import (
     CommandHandler
 )
 
-TOKEN = "8790089235:AAGtgJFfn3k8sffWfkFQSza0C0vV3aMzhWc"
+
+TOKEN = "ضعي_التوكن_هنا"
 ADMIN_ID = 1328541895
 
 
+# بداية البوت
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     await update.message.reply_text(
-        "أهلاً بك 🌷\n"
-        "أرسل رسالتك أو صورة أو ملف، وسيتم الرد عليك."
+        "أهلاً 🌷\n"
+        "أرسل رسالتك أو صورة أو ملف وسيتم الرد عليك."
     )
 
 
-async def send_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# استقبال رسائل الطلاب
+async def receive_student(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = update.effective_user
 
@@ -32,201 +36,186 @@ async def send_to_admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         info += f"🔹 Username: @{user.username}\n"
 
 
-    # رسالة نصية
     if update.message.text:
 
         await context.bot.send_message(
-            chat_id=ADMIN_ID,
-            text=info + 
+            ADMIN_ID,
+            info +
             f"\n💬 الرسالة:\n{update.message.text}\n\n"
-            f"للرد:\n/reply {user.id} الرسالة"
+            f"للرد:\n/reply {user.id}"
         )
 
 
-    # صورة
     elif update.message.photo:
 
         await context.bot.send_photo(
-            chat_id=ADMIN_ID,
-            photo=update.message.photo[-1].file_id,
+            ADMIN_ID,
+            update.message.photo[-1].file_id,
             caption=info +
-            f"\n📷 صورة\n\nللرد:\n/reply {user.id} الرسالة"
+            f"\n📷 صورة\n\nللرد:\n/reply {user.id}"
         )
 
 
-    # ملف PDF / Word / أي ملف
     elif update.message.document:
 
         await context.bot.send_document(
-            chat_id=ADMIN_ID,
-            document=update.message.document.file_id,
+            ADMIN_ID,
+            update.message.document.file_id,
             caption=info +
-            f"\n📄 ملف\n\nللرد:\n/reply {user.id} الرسالة"
+            f"\n📄 ملف\n\nللرد:\n/reply {user.id}"
         )
-        # فيديو
-async def handle_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    user = update.effective_user
 
-    await context.bot.send_video(
-        chat_id=ADMIN_ID,
-        video=update.message.video.file_id,
-        caption=(
-            f"🎥 فيديو جديد\n\n"
-            f"👤 الاسم: {user.full_name}\n"
-            f"🆔 ID: {user.id}\n\n"
-            f"للرد:\n/reply {user.id} الرسالة"
+    elif update.message.video:
+
+        await context.bot.send_video(
+            ADMIN_ID,
+            update.message.video.file_id,
+            caption=info +
+            f"\n🎥 فيديو\n\nللرد:\n/reply {user.id}"
         )
+
+
+    elif update.message.audio:
+
+        await context.bot.send_audio(
+            ADMIN_ID,
+            update.message.audio.file_id,
+            caption=info +
+            f"\n🎵 صوت\n\nللرد:\n/reply {user.id}"
+        )
+
+
+    await update.message.reply_text(
+        "✅ تم استلام رسالتك"
     )
 
 
-# صوت / تسجيل
-async def handle_audio(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    user = update.effective_user
-
-    await context.bot.send_audio(
-        chat_id=ADMIN_ID,
-        audio=update.message.audio.file_id,
-        caption=(
-            f"🎵 ملف صوتي جديد\n\n"
-            f"👤 الاسم: {user.full_name}\n"
-            f"🆔 ID: {user.id}\n\n"
-            f"للرد:\n/reply {user.id} الرسالة"
-        )
-    )
-
-
-# الرد على الطالب
+# أمر الرد
 async def reply_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
         return
 
     try:
+
         user_id = int(context.args[0])
 
         context.user_data["reply_to"] = user_id
 
         await update.message.reply_text(
-            "✅ الآن أرسل الرسالة أو الصورة أو الملف أو الفيديو"
+            "✅ أرسل الآن الرسالة أو الصورة أو الملف أو الفيديو"
         )
 
     except:
+
         await update.message.reply_text(
             "استخدم:\n/reply ID"
         )
 
 
-async def admin_reply_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+# استقبال رد الإدارة
+async def admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.effective_user.id != ADMIN_ID:
         return
 
+
     user_id = context.user_data.get("reply_to")
+
 
     if not user_id:
         return
 
-    try:
 
-        if update.message.text:
-            await context.bot.send_message(
-                user_id,
-                update.message.text
-            )
+    if update.message.text:
 
-        elif update.message.photo:
-            await context.bot.send_photo(
-                user_id,
-                update.message.photo[-1].file_id
-            )
-
-        elif update.message.document:
-            await context.bot.send_document(
-                user_id,
-                update.message.document.file_id
-            )
-
-        elif update.message.video:
-            await context.bot.send_video(
-                user_id,
-                update.message.video.file_id
-            )
-
-        elif update.message.audio:
-            await context.bot.send_audio(
-                user_id,
-                update.message.audio.file_id
-            )
-
-        await update.message.reply_text("✅ تم الإرسال")
-
-        context.user_data.pop("reply_to")
-
-    except Exception as e:
-        await update.message.reply_text(
-            f"حدث خطأ: {e}"
+        await context.bot.send_message(
+            user_id,
+            update.message.text
         )
 
+
+    elif update.message.photo:
+
+        await context.bot.send_photo(
+            user_id,
+            update.message.photo[-1].file_id
+        )
+
+
+    elif update.message.document:
+
+        await context.bot.send_document(
+            user_id,
+            update.message.document.file_id
+        )
+
+
+    elif update.message.video:
+
+        await context.bot.send_video(
+            user_id,
+            update.message.video.file_id
+        )
+
+
+    elif update.message.audio:
+
+        await context.bot.send_audio(
+            user_id,
+            update.message.audio.file_id
+        )
+
+
+    await update.message.reply_text(
+        "✅ تم الإرسال"
+    )
+
+
+    context.user_data.pop("reply_to", None)
+
+
+
+# تشغيل البوت
 app = Application.builder().token(TOKEN).build()
 
 
-# الأوامر
 app.add_handler(
     CommandHandler("start", start)
 )
 
+
 app.add_handler(
     CommandHandler("reply", reply_user)
 )
+
+
+# رد الإدارة (نخليه قبل استقبال الطلاب)
 app.add_handler(
     MessageHandler(
         filters.ALL & ~filters.COMMAND,
-        admin_reply_content
+        admin_reply
     )
 )
 
-# النصوص + الصور + الملفات
+
+# استقبال الطلاب
 app.add_handler(
     MessageHandler(
-        filters.TEXT & ~filters.COMMAND,
-        send_to_admin
-    )
-)
-
-app.add_handler(
-    MessageHandler(
-        filters.PHOTO,
-        send_to_admin
-    )
-)
-
-app.add_handler(
-    MessageHandler(
-        filters.Document.ALL,
-        send_to_admin
+        (
+            filters.TEXT |
+            filters.PHOTO |
+            filters.Document.ALL |
+            filters.VIDEO |
+            filters.AUDIO
+        )
+        & ~filters.COMMAND,
+        receive_student
     )
 )
 
 
-# الفيديو
-app.add_handler(
-    MessageHandler(
-        filters.VIDEO,
-        handle_video
-    )
-)
-
-
-# الصوت
-app.add_handler(
-    MessageHandler(
-        filters.AUDIO,
-        handle_audio
-    )
-)
-
-
-# تشغيل البوت
 app.run_polling()
