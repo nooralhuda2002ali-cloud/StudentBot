@@ -200,7 +200,12 @@ app.add_handler(
 app.add_handler(
     CommandHandler("reply", reply_user)
 )
-
+app.add_handler(
+    MessageHandler(
+        filters.ALL & ~filters.COMMAND,
+        admin_reply_content
+    )
+)
 
 # النصوص + الصور + الملفات
 app.add_handler(
